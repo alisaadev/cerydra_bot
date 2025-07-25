@@ -1,0 +1,66 @@
+{
+  "users": {
+    "6283872712735@s.whatsapp.net": {
+      "afk": -1,
+      "afkReason": "",
+      "age": 0,
+      "registered": false,
+      "regTime": -1,
+      "name": null
+    },
+    "6287760363490@s.whatsapp.net": {
+      "afk": -1,
+      "afkReason": "",
+      "age": 0,
+      "name": "al cmon",
+      "registered": false,
+      "regTime": -1
+    },
+    "6282382354609@s.whatsapp.net": {
+      "afk": -1,
+      "afkReason": "",
+      "age": 0,
+      "name": "arulbot",
+      "registered": false,
+      "regTime": -1
+    },
+    "6285772105778@s.whatsapp.net": {
+      "afk": -1,
+      "afkReason": "",
+      "age": 0,
+      "name": "bian",
+      "registered": false,
+      "regTime": -1
+    },
+    "62895340684706@s.whatsapp.net": {
+      "afk": -1,
+      "afkReason": "",
+      "age": 0,
+      "name": "arul",
+      "registered": false,
+      "regTime": -1
+    },
+    "6285796158860@s.whatsapp.net": {
+      "afk": -1,
+      "afkReason": "",
+      "age": 0,
+      "name": "Ryuu",
+      "registered": false,
+      "regTime": -1
+    }
+  },
+  "chats": {
+    "120363160867785242@g.us": {
+      "antilink": false,
+      "detect": true,
+      "welcome": true
+    }
+  },
+  "stats": {},
+  "msgs": {},
+  "sticker": {},
+  "settings": {
+    "autoread": true,
+    "self": false
+  }
+}
