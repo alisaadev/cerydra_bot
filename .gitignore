@@ -8,4 +8,4 @@ node_modules/
 package-lock.json
 
 # Database
-/storage/database.json
+storage/database.json
