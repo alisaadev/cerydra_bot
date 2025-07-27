@@ -17,7 +17,7 @@ export default {
 ╰───────···
 
 ┌ • *Creator* : al npc
-│ • *Instagram* : noorlyzz
+│ • *Github* : alisaadev
 ╰───────···
 %readmore`.trimStart(),
       header: "┌ • %category",

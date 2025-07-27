@@ -6,3 +6,6 @@ node_modules/
 
 # Package lock
 package-lock.json
+
+# Database
+/storage/database.json

@@ -17,6 +17,7 @@ export async function handler(conn, m, chatUpdate) {
 
     await (await import("./lib/loadDatabase.js")).default(m);
 
+    if (m.fromMe) return;
     if (m.isBaileys) return;
     if (!m.isOwner && db.settings.self) return;
     if (db.settings.autoread) conn.readMessages([m.key]);
@@ -82,7 +83,7 @@ export async function handler(conn, m, chatUpdate) {
         if (await plugin.before.call(conn, m, { chatUpdate })) continue;
       }
 
-      if (m.prefix) {
+      if (m.body.startsWith(m.prefix)) {
         let { args, command, text } = m;
         let isAccept = Array.isArray(plugin.command)
           ? plugin.command.some((cmd) => cmd === command)
