@@ -1,37 +1,37 @@
 {
-  "name": "Cerydra",
-  "version": "1.0.0",
-  "description": "Free WhatsApp Bot With ESM Module",
-  "main": "crydr.js",
-  "type": "module",
-  "scripts": {
-    "start": "node system/crydr.js"
-  },
-  "keywords": [
-    "whatsapp-bot"
-  ],
-  "author": "Alisa Noor Alya",
-  "license": "MIT",
-  "dependencies": {
-    "baileys": "npm:baileys-mod",
-    "baileys-mod": "^6.8.5",
-    "chalk": "^5.4.1",
-    "child_process": "^1.0.2",
-    "chokidar": "^4.0.3",
-    "file-type": "^19.6.0",
-    "fluent-ffmpeg": "^2.1.3",
-    "glob": "^11.0.0",
-    "human-readable": "^0.2.1",
-    "moment-timezone": "^0.5.46",
-    "node-cache": "^5.1.2",
-    "node-webpmux": "^3.2.0",
-    "syntax-error": "^1.4.0",
-    "terminal-kit": "^3.1.1"
-  },
-  "devDependencies": {
-    "@adiwajshing/keyed-db": "^0.2.4",
-    "axios": "^1.7.9",
-    "jimp": "^0.16.13",
-    "link-preview-js": "^3.0.12"
-  }
+    "name": "Cerydra",
+    "version": "1.0.0",
+    "description": "Free WhatsApp Bot With ESM Module",
+    "main": "crydr.js",
+    "type": "module",
+    "scripts": {
+        "start": "node system/crydr.js"
+    },
+    "keywords": [
+        "whatsapp-bot"
+    ],
+    "author": "Alisa Noor Alya",
+    "license": "MIT",
+    "dependencies": {
+        "baileys": "npm:baileys-mod",
+        "baileys-mod": "^6.8.5",
+        "chalk": "^5.4.1",
+        "child_process": "^1.0.2",
+        "chokidar": "^4.0.3",
+        "file-type": "^19.6.0",
+        "fluent-ffmpeg": "^2.1.3",
+        "glob": "^11.0.0",
+        "human-readable": "^0.2.1",
+        "moment-timezone": "^0.5.46",
+        "node-cache": "^5.1.2",
+        "node-webpmux": "^3.2.0",
+        "syntax-error": "^1.4.0",
+        "terminal-kit": "^3.1.1"
+    },
+    "devDependencies": {
+        "@adiwajshing/keyed-db": "^0.2.4",
+        "axios": "^1.7.9",
+        "jimp": "^0.16.13",
+        "link-preview-js": "^3.0.12"
+    }
 }
