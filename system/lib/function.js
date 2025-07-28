@@ -81,6 +81,25 @@ export default new(class Function {
         }
     }
 
+    async getFile(PATH) {
+        try {
+            let filename = null
+            let data = (await this.fetchBuffer(PATH))
+
+            if (data?.data) {
+                filename = path.join(process.cwd(), "storage/tmp", Date.now() + "." + data.ext)
+                fs.promises.writeFile(filename, data?.data)
+            }
+
+            return {
+                filename: data?.name ? data.name : filename,
+                ...data
+            }
+        } catch (e) {
+            throw e
+        }
+    }
+
     fetchBuffer(string, options = {}) {
         return new Promise(async (resolve, reject) => {
             try {
