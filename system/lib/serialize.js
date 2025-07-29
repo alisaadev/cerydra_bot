@@ -92,7 +92,7 @@ export function Client({ conn, store }) {
                     documentMessage: "document",
                     audioMessage: "audio",
                     ptvMessage: "video"
-                } [message.type]
+                }[message.type]
 
                 if ("thumbnailDirectPath" in message.msg && !("url" in message.msg)) {
                     message = {
@@ -104,9 +104,7 @@ export function Client({ conn, store }) {
                     message = message.msg
                 }
 
-                return await baileys.toBuffer(
-                    await baileys.downloadContentFromMessage(message, mime)
-                )
+                return await baileys.toBuffer(await baileys.downloadContentFromMessage(message, mime))
             },
             enumerable: true
         },
