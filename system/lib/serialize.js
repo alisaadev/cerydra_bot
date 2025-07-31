@@ -208,7 +208,47 @@ export async function Serialize(conn, msg) {
         m.type = conn.getContentType(m.message) || Object.keys(m.message)[0]
         m.msg = baileys.extractMessageContent(m.message[m.type]) || m.message[m.type]
         m.mentions = m.msg?.contextInfo?.mentionedJid || []
-        m.body = m.msg?.text || m.msg?.conversation || m.msg?.caption || m.message?.conversation || m.msg?.selectedButtonId || m.msg?.singleSelectReply?.selectedRowId || m.msg?.selectedId || m.msg?.contentText || m.msg?.selectedDisplayText || m.msg?.title || m.msg?.name || ""
+
+        let bodyContent = ""
+
+        if (m.type === "interactiveResponseMessage") {
+            try {
+                bodyContent = m.message.interactiveResponseMessage.selectedButtonId || ""
+
+                if (!bodyContent && m.message.interactiveResponseMessage.nativeFlowResponseMessage) {
+                    const paramsJson = m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson
+                    if (paramsJson) {
+                        const parsedParams = JSON.parse(paramsJson)
+                        bodyContent = parsedParams.id || parsedParams.selectedId || parsedParams.button_id || "" 
+                    }
+                }
+            } catch (e) {
+                func.logger.error("Error parsing interactiveResponseMessage:", e)
+                bodyContent = ""
+            }
+        } else if (m.type === "conversation") {
+            bodyContent = m.message.conversation
+        } else if (m.type === "imageMessage") {
+            bodyContent = m.message.imageMessage.caption
+        } else if (m.type === "videoMessage") {
+            bodyContent = m.message.videoMessage.caption
+        } else if (m.type === "extendedTextMessage") {
+            bodyContent = m.message.extendedTextMessage.text
+        } else if (m.type === "buttonsResponseMessage") {
+            bodyContent = m.message.buttonsResponseMessage.selectedButtonId
+        } else if (m.type === "listResponseMessage") {
+            bodyContent = m.message.listResponseMessage.singleSelectReply.selectedRowId
+        } else if (m.type === "templateButtonReplyMessage") {
+            bodyContent = m.message.templateButtonReplyMessage.selectedId
+        } else if (m.type === "messageContextInfo") {
+            bodyContent = m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply.selectedRowId || m.text || ""
+        } else if (m.type === "editedMessage") {
+            bodyContent = m.message.editedMessage?.message?.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.editedMessage?.message?.protocolMessage?.editedMessage?.conversation || ""
+        } else if (m.type === "protocolMessage") {
+            bodyContent = m.message.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.protocolMessage?.editedMessage?.conversation || m.message.protocolMessage?.editedMessage?.imageMessage?.caption || m.message.protocolMessage?.editedMessage?.videoMessage?.caption || ""
+        }
+
+        m.body = bodyContent
         m.prefix = global.prefix
         m.command = m.body && m.body.replace(m.prefix, "").trim().split(/ +/).shift()
         m.arg = m.body.trim().split(/ +/).filter((a) => a) || []
@@ -285,7 +325,47 @@ export async function Serialize(conn, msg) {
             }
 
             m.quoted.mentions = m.quoted.msg?.contextInfo?.mentionedJid || []
-            m.quoted.body = m.quoted.msg?.text || m.quoted.msg?.caption || m.quoted?.message?.conversation || m.quoted.msg?.selectedButtonId || m.quoted.msg?.singleSelectReply?.selectedRowId || m.quoted.msg?.selectedId || m.quoted.msg?.contentText || m.quoted.msg?.selectedDisplayText || m.quoted.msg?.title || m.quoted?.msg?.name || ""
+
+            let quotedBodyContent = ""
+
+            if (m.quoted.type === "interactiveResponseMessage") {
+                try {
+                    quotedBodyContent = m.quoted.message.interactiveResponseMessage.selectedButtonId || ""
+
+                    if (!quotedBodyContent && m.quoted.message.interactiveResponseMessage.nativeFlowResponseMessage) {
+                        const paramsJson = m.quoted.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson
+                        if (paramsJson) {
+                            const parsedParams = JSON.parse(paramsJson)
+                            quotedBodyContent = parsedParams.id || parsedParams.selectedId || parsedParams.button_id || "" 
+                        }
+                    }
+                } catch (e) {
+                    func.logger.error("Error parsing interactiveResponseMessage:", e)
+                    quotedBodyContent = ""
+                }
+            } else if (m.quoted.type === "conversation") {
+                quotedBodyContent = m.quoted.message.conversation
+            } else if (m.quoted.type === "imageMessage") {
+                quotedBodyContent = m.quoted.message.imageMessage.caption
+            } else if (m.quoted.type === "videoMessage") {
+                quotedBodyContent = m.quoted.message.videoMessage.caption
+            } else if (m.quoted.type === "extendedTextMessage") {
+                quotedBodyContent = m.quoted.message.extendedTextMessage.text
+            } else if (m.quoted.type === "buttonsResponseMessage") {
+                quotedBodyContent = m.quoted.message.buttonsResponseMessage.selectedButtonId
+            } else if (m.quoted.type === "listResponseMessage") {
+                quotedBodyContent = m.quoted.message.listResponseMessage.singleSelectReply.selectedRowId
+            } else if (m.quoted.type === "templateButtonReplyMessage") {
+                quotedBodyContent = m.quoted.message.templateButtonReplyMessage.selectedId
+            } else if (m.quoted.type === "messageContextInfo") {
+                quotedBodyContent = m.quoted.message.buttonsResponseMessage?.selectedButtonId || m.quoted.message.listResponseMessage?.singleSelectReply.selectedRowId || m.quoted.text || ""
+            } else if (m.quoted.type === "editedMessage") {
+                quotedBodyContent = m.quoted.message.editedMessage?.message?.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.quoted.message.editedMessage?.message?.protocolMessage?.editedMessage?.conversation || ""
+            } else if (m.quoted.type === "protocolMessage") {
+                quotedBodyContent = m.quoted.message.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.quoted.message.protocolMessage?.editedMessage?.conversation || m.quoted.message.protocolMessage?.editedMessage?.imageMessage?.caption || m.quoted.message.protocolMessage?.editedMessage?.videoMessage?.caption || ""
+            }
+
+            m.quoted.body = quotedBodyContent
             m.quoted.prefix = global.prefix
             m.quoted.command = m.quoted.body && m.quoted.body.replace(m.quoted.prefix, "").trim().split(/ +/).shift()
             m.quoted.arg = m.quoted.body.trim().split(/ +/).filter((a) => a) || []

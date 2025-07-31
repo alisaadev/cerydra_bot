@@ -14,7 +14,7 @@ export async function handler(conn, m, chatUpdate) {
         if (settings.autoread) conn.readMessages([m.key])
 
         if (m.isOwner) {
-            if (m.body.toLowerCase().startsWith("eval")) {
+            if (m.body.startsWith("eval")) {
                 let __dirname = func.path.dirname(fileURLToPath(import.meta.url))
                 let require = createRequire(__dirname), _return = ""
 
@@ -33,7 +33,7 @@ export async function handler(conn, m, chatUpdate) {
                 })?.then((res) => m.reply(func.format(res)))?.catch((err) => m.reply(func.format(err)))
             }
 
-            if (m.body.toLowerCase().startsWith("exec")) {
+            if (m.body.startsWith("exec")) {
                 let exec = promisify(_exec).bind(cp)
                 try {
                     exec(m.text, async (err, stdout) => {
@@ -54,7 +54,7 @@ export async function handler(conn, m, chatUpdate) {
                 try {
                     await plugin.all.call(conn, m, { chatUpdate })
                 } catch (e) {
-                    console.error(e)
+                    func.logger.error(e)
                     conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n\n${func.format(e)}`, mentions: [m.sender] })
                 }
             }
@@ -106,14 +106,14 @@ export async function handler(conn, m, chatUpdate) {
                 try {
                     await plugin.run(m, extra)
                 } catch (e) {
-                    console.error(e)
+                    func.logger.error(e)
                     conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n\n${func.format(e)}`, mentions: [m.sender] })
                 } finally {
                     if (typeof plugin.after === "function") {
                         try {
                             await plugin.after.call(conn, m, extra)
                         } catch (e) {
-                            console.error(e)
+                            func.logger.error(e)
                             conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n\n${func.format(e)}`, mentions: [m.sender] })
                         }
                     }
@@ -121,7 +121,7 @@ export async function handler(conn, m, chatUpdate) {
             }
         }
     } catch (e) {
-        console.error(e)
+        func.logger.error(e)
     }
 }
 
@@ -135,17 +135,11 @@ export async function participantsUpdate({ id, participants, action }) {
         case "add":
         case "remove":
             for (let user of participants) {
-                try {
-                    ppuser = await conn.profilePictureUrl(user, "image")
-                } catch {
-                    ppuser = "https://telegra.ph/file/04022fa475e4162862d8b.jpg"
-                } finally {
-                    let tekswell = `Halo @${user.split("@")[0]} 👋\n\nSelamat datang di grup ${metadata.subject}! Kami senang kamu bergabung dengan kami.\n\nSaya harap kamu betah disini dan jangan lupa untuk selalu mengikuti peraturan yang ada`
-                    let teksbye = `Selamat tinggal @${user.split("@")[0]} 👋\n\nSalam perpisahan, kami harap kamu baik-baik saja disana`
+                let tekswell = `Halo @${user.split("@")[0]} 👋\n\nSelamat datang di grup ${metadata.subject}! Kami senang kamu bergabung dengan kami.`
+                let teksbye = `Selamat tinggal @${user.split("@")[0]} 👋\n\nSalam perpisahan, kami harap kamu baik-baik saja disana`
 
-                    if (action == "add") conn.sendMessage(id, { image: { url: ppuser }, contextInfo: { mentionedJid: [user] }, caption: tekswell, mentions: [user] })
-                    if (action == "remove") conn.sendMessage(id, { text: teksbye, mentions: [user] })
-                }
+                if (action == "add") conn.sendMessage(id, { text: tekswell, mentions: [user] })
+                if (action == "remove") conn.sendMessage(id, { text: teksbye, mentions: [user] })
             }
             break
         case "promote":

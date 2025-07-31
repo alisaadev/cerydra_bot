@@ -1,5 +1,3 @@
-import fs from "fs"
-import chalk from "chalk"
 import { fileURLToPath } from "url"
 import junction from "../system/lib/function.js"
 
@@ -14,9 +12,9 @@ global.link = "https://github.com/alisaadev"
 global.owner = ["6287760363490"]
 global.pairingNumber = "6283872712735"
 
-global.thumbnail = fs.readFileSync("./storage/crydr.jpg")
 global.prefix = "."
 global.func = junction
+global.thumbnail = func.fs.readFileSync("./storage/crydr.jpg")
 
 //—————「 Bot settings 」—————//
 global.settings = {
@@ -36,8 +34,9 @@ global.mess = {
 
 //—————「 Don"t change it 」—————//
 let file = fileURLToPath(import.meta.url)
-fs.watchFile(file, () => {
-  fs.unwatchFile(file)
-  console.log(chalk.green("Update config.js"))
-  import(`${file}?update=${Date.now()}`)
+func.fs.watchFile(file, () => {
+    func.fs.unwatchFile(file)
+    import(`${file}?update=${Date.now()}`)
+
+    func.logger.info("config.js updated")
 })

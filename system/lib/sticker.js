@@ -1,14 +1,11 @@
-import Func from "./function.js"
-
 import fs from "fs"
 import path from "path"
-import axios from "axios"
 import ff from "fluent-ffmpeg"
 import webp from "node-webpmux"
 
 async function imageToWebp(media) {
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await Func.getRandom("webp"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await Func.getRandom("jpg"))
+    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("jpg"))
 
     fs.writeFileSync(tmpFileIn, media)
 
@@ -27,14 +24,12 @@ async function imageToWebp(media) {
     })
 
     const buff = fs.readFileSync(tmpFileOut)
-    fs.promises.unlink(tmpFileOut)
-    fs.promises.unlink(tmpFileIn)
     return buff
 }
 
 async function videoToWebp(media) {
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await Func.getRandom("webp"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await Func.getRandom("mp4"))
+    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
 
     fs.writeFileSync(tmpFileIn, media)
 
@@ -64,27 +59,21 @@ async function videoToWebp(media) {
     })
 
     const buff = fs.readFileSync(tmpFileOut)
-    fs.promises.unlink(tmpFileOut)
-    fs.promises.unlink(tmpFileIn)
     return buff
 }
 
 async function writeExif(media) {
-    let wMedia = /webp/.test(media.mimetype) ? media.data : /image/.test(media.mimetype) ? await imageToWebp(media.data) : /video/.test(media.mimetype) ? await videoToWebp(media.data) : ""
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await Func.getRandom("webp"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await Func.getRandom("webp", "15"))
+    const _media = /webp/.test(media.mimetype) ? media.data : /image/.test(media.mimetype) ? await imageToWebp(media.data) : /video/.test(media.mimetype) ? await videoToWebp(media.data) : ""
+    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp", "15"))
 
-    fs.writeFileSync(tmpFileIn, wMedia)
+    fs.writeFileSync(tmpFileIn, _media)
 
     const img = new webp.Image()
     const json = {
         "sticker-pack-id": link,
         "sticker-pack-name": packname,
         "sticker-pack-publisher": author,
-        "sticker-pack-publisher-email": "alisaadev@gmail.com",
-        "sticker-pack-publisher-website": link,
-        "android-app-store-link": "https://play.google.com/store/apps/details?id=com.bitsmedia.android.muslimpro",
-        "ios-app-store-link": "https://apps.apple.com/id/app/muslim-pro-al-quran-adzan/id388389451?|=id",
         "emojis": [],
         "is-avatar-sticker": 0
     }
@@ -95,7 +84,6 @@ async function writeExif(media) {
 
     exif.writeUIntLE(jsonBuff.length, 14, 4)
     await img.load(tmpFileIn)
-    fs.promises.unlink(tmpFileIn)
     img.exif = exif
     await img.save(tmpFileOut)
 

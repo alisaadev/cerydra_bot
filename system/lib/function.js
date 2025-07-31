@@ -2,15 +2,13 @@ import fs from "fs"
 import path from "path"
 import axios from "axios"
 import chalk from "chalk"
-import cheerio from "cheerio"
 import { format } from "util"
-import { platform } from "os"
 import term from "terminal-kit"
 import mimes from "mime-types"
+import * as cheerio from "cheerio"
 import { exec } from "child_process"
 import moment from "moment-timezone"
 import { fileTypeFromBuffer } from "file-type"
-import { fileURLToPath, pathToFileURL } from "url"
 
 export default new(class Function {
     constructor() {
@@ -18,26 +16,7 @@ export default new(class Function {
         this.cheerio = cheerio
         this.fs = fs
         this.path = path
-    }
-
-    __filename(pathURL = import.meta, rmPrefix = platform() !== "win32") {
-        const path = pathURL?.url || pathURL
-
-        return rmPrefix ? /file:\/\/\//.test(path) ? fileURLToPath(path) : path : /file:\/\/\//.test(path) ? path : pathToFileURL(path).href
-    }
-
-    __dirname(pathURL) {
-        const dir = this.__filename(pathURL, true)
-        const regex = /\/$/
-
-        return regex.test(dir) ? dir : fs.existsSync(dir) && fs.statSync(dir).isDirectory ? dir.replace(regex, "") : path.dirname(dir)
-    }
-
-    async dirSize(directory) {
-        const files = await fs.readdirSync(directory)
-        const stats = files.map((file) => fs.statSync(path.join(directory, file)))
-
-        return (await Promise.all(stats)).reduce((accumulator, { size }) => accumulator + size, 0)
+        this.logger = this.logging()
     }
 
     sleep(ms) {
@@ -271,6 +250,46 @@ export default new(class Function {
                     global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b)))
                 }
                 break
+        }
+    }
+
+    logging() {
+        return {
+            info(...args) {
+                console.log(
+                    chalk.bold.bgRgb(51, 204, 51)("INFO "),
+                    `[${chalk.rgb(255, 255, 255)(new Date().toUTCString())}]:`,
+                    chalk.cyan(format(...args))
+                )
+            },
+            error(...args) {
+                console.log(
+                    chalk.bold.bgRgb(247, 38, 33)("ERROR "),
+                    `[${chalk.rgb(255, 255, 255)(new Date().toUTCString())}]:`,
+                    chalk.rgb(255, 38, 0)(format(...args))
+                )
+            },
+            warn(...args) {
+                console.log(
+                    chalk.bold.bgRgb(255, 153, 0)("WARNING "),
+                    `[${chalk.rgb(255, 255, 255)(new Date().toUTCString())}]:`,
+                    chalk.redBright(format(...args))
+                )
+            },
+            trace(...args) {
+                console.log(
+                    chalk.grey("TRACE "),
+                    `[${chalk.rgb(255, 255, 255)(new Date().toUTCString())}]:`,
+                    chalk.white(format(...args))
+                )
+            },
+            debug(...args) {
+                console.log(
+                    chalk.bold.bgRgb(66, 167, 245)("DEBUG "),
+                    `[${chalk.rgb(255, 255, 255)(new Date().toUTCString())}]:`,
+                    chalk.white(format(...args))
+                )
+            }
         }
     }
 })()
