@@ -33,6 +33,8 @@ global.mess = {
 }
 
 //—————「 Don"t change it 」—————//
+global.same = "https://v1.samehadaku.how/"
+
 let file = fileURLToPath(import.meta.url)
 func.fs.watchFile(file, () => {
     func.fs.unwatchFile(file)

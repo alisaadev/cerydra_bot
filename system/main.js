@@ -9,7 +9,7 @@ import { globSync } from "glob"
 import { Boom } from "@hapi/boom"
 
 const logger = pino({
-    level: "info",
+    level: "fatal",
     transport: {
         target: "pino-pretty",
         options: {
@@ -23,6 +23,9 @@ const logger = pino({
 const store = baileys.makeInMemoryStore({ logger })
 
 async function start() {
+    process.on("uncaughtException", console.error)
+    process.on("unhandledRejection", console.error)
+
     const { state, saveCreds } = await baileys.useMultiFileAuthState("./system/session")
     const conn = baileys.default({
         logger: logger,
