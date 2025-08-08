@@ -2,10 +2,10 @@ import { fileURLToPath } from "url"
 import junction from "../system/lib/function.js"
 
 //—————「 Setings your bot 」—————//
-global.name = "Cerydra - Bot"
+global.name = "Ceryꤪꤨꤪꤪꤨꤪdra - Bot"
 global.wm = "Cerydra my wife"
 
-global.author = "Alisa"
+global.author = "al aja"
 global.packname = "Created Sticker By"
 global.link = "https://github.com/alisaadev"
 

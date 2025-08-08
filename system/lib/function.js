@@ -35,8 +35,8 @@ export default new(class Function {
     }
 
     tanggal(numer, timeZone = "") {
-        const myMonths = [ "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember" ]
-        const myDays = [ "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jum’at", "Sabtu" ]
+        const myMonths = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]
+        const myDays = [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ]
 
         let tgl = new Date(numer)
         timeZone ? tgl.toLocaleString("en", { timeZone }) : ""

@@ -104,6 +104,7 @@ export async function handler(conn, m, chatUpdate) {
                 }
 
                 try {
+                    conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } })
                     await plugin.run(m, extra)
                 } catch (e) {
                     func.logger.error(e)
