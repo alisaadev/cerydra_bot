@@ -19,7 +19,7 @@ global.thumbnail = func.fs.readFileSync("./storage/crydr.jpg")
 //—————「 Bot settings 」—————//
 global.settings = {
     autoread: true,
-    self: false
+    public: true
 }
 
 //—————「 Message settings 」—————//

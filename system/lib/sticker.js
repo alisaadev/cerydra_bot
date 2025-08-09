@@ -1,7 +1,9 @@
 import fs from "fs"
 import path from "path"
 import ff from "fluent-ffmpeg"
+import FormData from "form-data"
 import webp from "node-webpmux"
+import { fileTypeFromBuffer } from "file-type"
 
 async function imageToWebp(media) {
     const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
@@ -90,4 +92,24 @@ async function writeExif(media) {
     return tmpFileOut
 }
 
-export { imageToWebp, videoToWebp, writeExif }
+async function uploadFile(media) {
+    const mime = await fileTypeFromBuffer(media)
+    const name = "crydr-" + func.getRandom(mime.ext, "5")
+    const form = new FormData()
+
+    form.append("file", media, { filename: name, contentType: mime.mime })
+    form.append("isPermanent", "false")
+    form.append("expirationHours", "1")
+
+    const data = await func.axios.post("https://cdn.akane.web.id/upload", form, {
+        headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
+            "Authorization": "Bearer da1aba4f39a1a3abfcd890bc0e969078773b4f867614209639860a619cf53b71",
+            ...form.getHeaders()
+        }
+    })
+
+    return data.data.file
+}
+
+export { imageToWebp, videoToWebp, writeExif, uploadFile }

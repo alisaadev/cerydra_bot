@@ -36,12 +36,6 @@ export function Client({ conn, store }) {
             }
         },
 
-        generateMessageID: {
-            value(id = "3EB0", length = 18) {
-                return id + Crypto.randomBytes(length).toString("hex").toUpperCase()
-            }
-        },
-
         getName: {
             value(jid) {
                 let id = conn.decodeJid(jid), v
@@ -59,22 +53,6 @@ export function Client({ conn, store }) {
 
                 return (v?.name || v?.subject || v?.pushName || v?.verifiedName || parsePhoneNumber("+" + id.replace("@s.whatsapp.net", "")).format("INTERNATIONAL"))
             }
-        },
-
-        sendContact: {
-            async value(jid, number, quoted, options = {}) {
-                let list = []
-
-                for (let v of number) {
-                    list.push({
-                        displayName: await conn.getName(v),
-                        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:${await conn.getName(v + "@s.whatsapp.net")}\nFN:${await conn.getName(v + "@s.whatsapp.net")}\nitem1.TELwaid=${v}:${v}\nitem1.X-ABLabel:Ponsel\nitem2.EMAILtype=INTERNET:alisaadev@gmail.com\nitem2.X-ABLabel:Email\nitem3.URL:https://nhentai.net\nitem3.X-ABLabel:Instagram\nitem4.ADR:Indonesia\nitem4.X-ABLabel:Region\nEND:VCARD`,
-                    })
-                }
-
-                return conn.sendMessage(jid, { contacts: { displayName: `${list.length} Contact`, contacts: list }, mentions: quoted?.participant ? [conn.decodeJid(quoted?.participant)] : [conn.decodeJid(conn.user?.id)], ...options }, { quoted, ...options })
-            },
-            enumerable: true
         },
 
         parseMention: {
@@ -104,7 +82,18 @@ export function Client({ conn, store }) {
                     message = message.msg
                 }
 
-                return await baileys.toBuffer(await baileys.downloadContentFromMessage(message, mime))
+                const buffer = await baileys.toBuffer(await baileys.downloadContentFromMessage(message, mime))
+
+                if (filename) {
+                    if (!fs.existsSync(Function.path.dirname(filename))) {
+                        fs.mkdirSync(Function.path.dirname(filename), { recursive: true })
+                    }
+
+                    fs.writeFileSync(filename, buffer)
+                    return filename
+                } else {
+                    return buffer
+                }
             },
             enumerable: true
         },
@@ -210,7 +199,6 @@ export async function Serialize(conn, msg) {
         m.mentions = m.msg?.contextInfo?.mentionedJid || []
 
         let bodyContent = ""
-
         if (m.type === "interactiveResponseMessage") {
             try {
                 bodyContent = m.message.interactiveResponseMessage.selectedButtonId || ""
@@ -248,9 +236,9 @@ export async function Serialize(conn, msg) {
             bodyContent = m.message.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.message.protocolMessage?.editedMessage?.conversation || m.message.protocolMessage?.editedMessage?.imageMessage?.caption || m.message.protocolMessage?.editedMessage?.videoMessage?.caption || ""
         }
 
-        m.body = bodyContent
+        m.body = bodyContent || ""
         m.prefix = global.prefix
-        m.command = m.body && m.body.replace(m.prefix, "").trim().split(/ +/).shift()
+        m.command = m.body.replace(m.prefix, "").trim().split(/ +/).shift()
         m.arg = m.body.trim().split(/ +/).filter((a) => a) || []
         m.args = m.body.trim().replace(new RegExp("^" + Function.escapeRegExp(m.prefix), "i"), "").replace(m.command, "").split(/ +/).filter((a) => a) || []
         m.text = m.args.join(" ")
@@ -286,13 +274,11 @@ export async function Serialize(conn, msg) {
 
         m.download = (filepath) => {
             if (filepath) return conn.downloadMediaMessage(m, filepath)
-            else return conn.downloadMediaMessage(m)
+            return conn.downloadMediaMessage(m)
         }
     }
 
-    // quoted line
     m.isQuoted = false
-
     if (m.msg?.contextInfo?.quotedMessage) {
         m.isQuoted = true
         m.quoted = {}
@@ -327,7 +313,6 @@ export async function Serialize(conn, msg) {
             m.quoted.mentions = m.quoted.msg?.contextInfo?.mentionedJid || []
 
             let quotedBodyContent = ""
-
             if (m.quoted.type === "interactiveResponseMessage") {
                 try {
                     quotedBodyContent = m.quoted.message.interactiveResponseMessage.selectedButtonId || ""
@@ -365,9 +350,9 @@ export async function Serialize(conn, msg) {
                 quotedBodyContent = m.quoted.message.protocolMessage?.editedMessage?.extendedTextMessage?.text || m.quoted.message.protocolMessage?.editedMessage?.conversation || m.quoted.message.protocolMessage?.editedMessage?.imageMessage?.caption || m.quoted.message.protocolMessage?.editedMessage?.videoMessage?.caption || ""
             }
 
-            m.quoted.body = quotedBodyContent
+            m.quoted.body = quotedBodyContent || ""
             m.quoted.prefix = global.prefix
-            m.quoted.command = m.quoted.body && m.quoted.body.replace(m.quoted.prefix, "").trim().split(/ +/).shift()
+            m.quoted.command = m.quoted.body.replace(m.quoted.prefix, "").trim().split(/ +/).shift()
             m.quoted.arg = m.quoted.body.trim().split(/ +/).filter((a) => a) || []
             m.quoted.args = m.quoted.body.trim().replace(new RegExp("^" + Function.escapeRegExp(m.quoted.prefix), "i"), "").replace(m.quoted.command, "").split(/ +/).filter((a) => a) || []
             m.quoted.text = m.quoted.args.join(" ")

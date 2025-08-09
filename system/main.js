@@ -47,7 +47,6 @@ async function start() {
     })
 
     store.bind(conn.ev)
-
     conn.ev.on("contacts.update", (update) => {
         for (let contact of update) {
             let id = baileys.jidNormalizedUser(contact.id)
@@ -60,8 +59,8 @@ async function start() {
 
     if (!conn.authState.creds.registered) {
         setTimeout(async () => {
-            let customPairingCode = "CRYDRBOT"
-            let code = await conn.requestPairingCode(global.pairingNumber, customPairingCode)
+            let pairingCode = "CRYDRBOT"
+            let code = await conn.requestPairingCode(global.pairingNumber, pairingCode)
 
             func.logger.info(`Your Pairing Code: ${code?.match(/.{1,4}/g)?.join("-") || code}`)
         }, 3000)

@@ -4,7 +4,7 @@ export default {
     tags: "sticker",
 
     run: async(m, { conn }) => {
-        let quoted = m.quoted ? m.quoted : m
+        let quoted = m.isQuoted ? m.quoted : m
 
         if (quoted.isMedia) {
             let media = await quoted.download()

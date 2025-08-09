@@ -10,7 +10,7 @@ export async function handler(conn, m, chatUpdate) {
     try {
         if (m.fromMe) return
         if (m.isBaileys) return
-        if (!m.isOwner && settings.self) return
+        if (!m.isOwner && !settings.public) return
         if (settings.autoread) conn.readMessages([m.key])
 
         if (m.isOwner) {
@@ -55,7 +55,7 @@ export async function handler(conn, m, chatUpdate) {
                     await plugin.all.call(conn, m, { chatUpdate })
                 } catch (e) {
                     func.logger.error(e)
-                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n\n${func.format(e)}`, mentions: [m.sender] })
+                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n${func.format(e)}` })
                 }
             }
 
@@ -63,7 +63,7 @@ export async function handler(conn, m, chatUpdate) {
                 if (await plugin.before.call(conn, m, { chatUpdate })) continue
             }
 
-            if (m.body.startsWith(m.prefix)) {
+            if (m.body?.startsWith(m.prefix)) {
                 let { args, command, text } = m
                 let isAccept = Array.isArray(plugin.command) ? plugin.command.some((cmd) => cmd === command) : false
 
@@ -104,18 +104,17 @@ export async function handler(conn, m, chatUpdate) {
                 }
 
                 try {
-                    conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } })
                     await plugin.run(m, extra)
                 } catch (e) {
                     func.logger.error(e)
-                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n\n${func.format(e)}`, mentions: [m.sender] })
+                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n${func.format(e)}` })
                 } finally {
                     if (typeof plugin.after === "function") {
                         try {
                             await plugin.after.call(conn, m, extra)
                         } catch (e) {
                             func.logger.error(e)
-                            conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n\n${func.format(e)}`, mentions: [m.sender] })
+                            conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n${func.format(e)}` })
                         }
                     }
                 }
@@ -127,7 +126,7 @@ export async function handler(conn, m, chatUpdate) {
 }
 
 export async function participantsUpdate({ id, participants, action }) {
-    if (settings.self) return
+    if (!settings.public) return
 
     let ppuser
     let metadata = await conn.groupMetadata(id)

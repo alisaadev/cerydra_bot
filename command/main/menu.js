@@ -30,6 +30,7 @@ export default {
 
         let tags = {
             main: "*Main*",
+            owner: "*Owner*",
             sticker: "*Sticker*"
         }
 
@@ -62,8 +63,8 @@ export default {
             interactiveButtons: [{
                 name: "quick_reply",
                 buttonParamsJson: JSON.stringify({
-                    display_text: "Quick Reply",
-                    id: ".s"
+                    display_text: "Owner",
+                    id: ".owner"
                 })
             }]
         }

@@ -5,8 +5,8 @@ export default {
     name: "samehadaku-search",
     tags: "main",
     
-    run: async (m, { conn, text }) => {
-        if (!text) return m.reply("Perintah `.same --search` memerlukan judul anime untuk dicari")
+    run: async(m, { conn, text }) => {
+        if (!text) return m.reply("What anime are you looking for?")
 
         const result = await scrape.scrapeAnimeSearch(text)
         const results = await scrape.getAnimeDataFromCacheOrScrape()
