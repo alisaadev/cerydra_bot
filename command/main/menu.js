@@ -29,9 +29,9 @@ export default {
         }
 
         let tags = {
+            convert: "*Converter*",
             main: "*Main*",
-            owner: "*Owner*",
-            sticker: "*Sticker*"
+            owner: "*Owner*"
         }
 
         let more = String.fromCharCode(8206)
@@ -60,13 +60,7 @@ export default {
             image: thumbnail,
             caption: text,
             footer: "Jika anda menemukan bug/error, segera laporkan ke pemilik bot",
-            interactiveButtons: [{
-                name: "quick_reply",
-                buttonParamsJson: JSON.stringify({
-                    display_text: "Owner",
-                    id: ".owner"
-                })
-            }]
+            buttons: [{ buttonId: ".owner", buttonText: { displayText: "Owner" }, type: 1 }]
         }
 
         await conn.sendMessage(m.chat, interactiveMessage, { quoted: m })

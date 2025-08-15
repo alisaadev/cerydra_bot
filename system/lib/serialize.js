@@ -1,10 +1,7 @@
 import Function from "./function.js"
-import { writeExif } from "./sticker.js"
+import { writeExif } from "./convert.js"
 
 import fs from "fs"
-import util from "util"
-import chalk from "chalk"
-import Crypto from "crypto"
 import baileys from "baileys"
 import { parsePhoneNumber } from "libphonenumber-js"
 
@@ -19,8 +16,8 @@ export function Client({ conn, store }) {
         getContentType: {
             value(content) {
                 if (content) {
-                    const keys = Object.keys(content)
-                    const key = keys.find((k) => (k === "conversation" || k.endsWith("Message") || k.endsWith("V2") || k.endsWith("V3")) && k !== "senderKeyDistributionMessage")
+                    let keys = Object.keys(content)
+                    let key = keys.find((k) => (k === "conversation" || k.endsWith("Message") || k.endsWith("V2") || k.endsWith("V3")) && k !== "senderKeyDistributionMessage")
                     return key
                 }
             },
@@ -30,7 +27,7 @@ export function Client({ conn, store }) {
         decodeJid: {
             value(jid) {
                 if (/:\d+@/gi.test(jid)) {
-                    const decode = baileys.jidNormalizedUser(jid)
+                    let decode = baileys.jidNormalizedUser(jid)
                     return decode
                 } else return jid
             }
@@ -82,14 +79,13 @@ export function Client({ conn, store }) {
                     message = message.msg
                 }
 
-                const buffer = await baileys.toBuffer(await baileys.downloadContentFromMessage(message, mime))
+                let buff = await baileys.downloadContentFromMessage(message, mime)
+                let buffer = await baileys.toBuffer(buff)
 
                 if (filename) {
-                    if (!fs.existsSync(Function.path.dirname(filename))) {
-                        fs.mkdirSync(Function.path.dirname(filename), { recursive: true })
-                    }
+                    let file = func.path.join(process.cwd(), "storage/tmp", filename)
 
-                    fs.writeFileSync(filename, buffer)
+                    fs.writeFileSync(file, buffer)
                     return filename
                 } else {
                     return buffer
@@ -108,14 +104,14 @@ export function Client({ conn, store }) {
                     data = {
                         document: buffer,
                         mimetype: mime,
-                        fileName: options?.fileName ? options.fileName : `${conn.user?.name} (${new Date()}).${ext}`,
+                        fileName: options?.fileName ? options.fileName : `${conn.user?.name} (${Date.now()}).${ext}`,
                         ...options
                     }
                 } else if (options.asDocument) {
                     data = {
                         document: buffer,
                         mimetype: mime,
-                        fileName: options?.fileName ? options.fileName : `${conn.user?.name} (${new Date()}).${ext}`,
+                        fileName: options?.fileName ? options.fileName : `${conn.user?.name} (${Date.now()}).${ext}`,
                         ...options
                     }
                 } else if (options.asSticker || /webp/.test(mime)) {
@@ -163,8 +159,8 @@ export function Client({ conn, store }) {
 }
 
 export async function Serialize(conn, msg) {
-    const m = {}
-    const botNumber = conn.decodeJid(conn.user?.id)
+    let m = {}
+    let botNumber = conn.decodeJid(conn.user?.id)
 
     if (!msg.message) return
     if (msg.key && msg.key.remoteJid == "status@broadcast") return
@@ -183,7 +179,7 @@ export async function Serialize(conn, msg) {
         m.sender = conn.decodeJid(m.fromMe ? conn.user.id : m.isGroup ? m.participant : m.isLid ? m.key.senderPn : m.chat)
     }
 
-    m.pushName = msg.pushName
+    m.pushname = msg.pushName
     m.isOwner = m.sender && [...global.owner, botNumber.split("@")[0]].includes(m.sender.replace(/\D+/g, ""))
 
     if (m.isGroup) {
@@ -199,14 +195,15 @@ export async function Serialize(conn, msg) {
         m.mentions = m.msg?.contextInfo?.mentionedJid || []
 
         let bodyContent = ""
+
         if (m.type === "interactiveResponseMessage") {
             try {
                 bodyContent = m.message.interactiveResponseMessage.selectedButtonId || ""
 
                 if (!bodyContent && m.message.interactiveResponseMessage.nativeFlowResponseMessage) {
-                    const paramsJson = m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson
+                    let paramsJson = m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson
                     if (paramsJson) {
-                        const parsedParams = JSON.parse(paramsJson)
+                        let parsedParams = JSON.parse(paramsJson)
                         bodyContent = parsedParams.id || parsedParams.selectedId || parsedParams.button_id || "" 
                     }
                 }
@@ -287,40 +284,30 @@ export async function Serialize(conn, msg) {
         if (m.quoted.message) {
             m.quoted.type = conn.getContentType(m.quoted.message) || Object.keys(m.quoted.message)[0]
             m.quoted.msg = baileys.extractMessageContent(m.quoted.message[m.quoted.type]) || m.quoted.message[m.quoted.type]
-            m.quoted.key = {
-                remoteJid: m.msg?.contextInfo?.remoteJid || m.chat,
-                participant: m.msg?.contextInfo?.remoteJid?.endsWith("g.us") ? conn.decodeJid(m.msg?.contextInfo?.participant) : false,
-                fromMe: baileys.areJidsSameUser(conn.decodeJid(m.msg?.contextInfo?.participant), conn.decodeJid(conn.user?.id)),
-                id: m.msg?.contextInfo?.stanzaId
-            }
-
-            m.quoted.from = m.quoted.key.remoteJid
-            m.quoted.fromMe = m.quoted.key.fromMe
+            m.quoted.from = m.chat
             m.quoted.id = m.msg?.contextInfo?.stanzaId
             m.quoted.isBaileys = m.quoted.id.startsWith("BAE5")
             m.quoted.isGroup = m.quoted.from.endsWith("@g.us")
-            m.quoted.participant = m.quoted.key.participant
             m.quoted.sender = conn.decodeJid(m.msg?.contextInfo?.participant)
             m.quoted.isOwner = m.quoted.sender && [...global.owner, botNumber.split("@")[0]].includes(m.quoted.sender.replace(/\D+/g, ""))
 
             if (m.quoted.isGroup) {
-                m.quoted.metadata = await conn.groupMetadata(m.quoted.from)
-                m.quoted.admins = m.quoted.metadata.participants.reduce((memberAdmin, memberNow) => (memberNow.admin ? memberAdmin.push({ id: memberNow.id, admin: memberNow.admin }) : [...memberAdmin]) && memberAdmin, [])
+                m.quoted.metadata = m.metadata
+                m.quoted.admins = m.metadata.participants.reduce((memberAdmin, memberNow) => (memberNow.admin ? memberAdmin.push({ id: memberNow.id, admin: memberNow.admin }) : [...memberAdmin]) && memberAdmin, [])
                 m.quoted.isAdmin = !!m.quoted.admins.find((member) => member.id === m.quoted.sender)
                 m.quoted.isBotAdmin = !!m.quoted.admins.find((member) => member.id === botNumber)
             }
 
-            m.quoted.mentions = m.quoted.msg?.contextInfo?.mentionedJid || []
-
             let quotedBodyContent = ""
+
             if (m.quoted.type === "interactiveResponseMessage") {
                 try {
                     quotedBodyContent = m.quoted.message.interactiveResponseMessage.selectedButtonId || ""
 
                     if (!quotedBodyContent && m.quoted.message.interactiveResponseMessage.nativeFlowResponseMessage) {
-                        const paramsJson = m.quoted.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson
+                        let paramsJson = m.quoted.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson
                         if (paramsJson) {
-                            const parsedParams = JSON.parse(paramsJson)
+                            let parsedParams = JSON.parse(paramsJson)
                             quotedBodyContent = parsedParams.id || parsedParams.selectedId || parsedParams.button_id || "" 
                         }
                     }
@@ -363,11 +350,8 @@ export async function Serialize(conn, msg) {
                 m.quoted.size = m.quoted.msg?.fileLength
                 m.quoted.height = m.quoted.msg?.height || ""
                 m.quoted.width = m.quoted.msg?.width || ""
-                if (/webp/i.test(m.quoted.mime)) m.quoted.isAnimated = m?.quoted?.msg?.isAnimated || false
-            }
 
-            m.quoted.reply = (text, options = {}) => {
-                return m.reply(text, { quoted: m.quoted, ...options })
+                if (/webp/i.test(m.quoted.mime)) m.quoted.isAnimated = m?.quoted?.msg?.isAnimated || false
             }
 
             m.quoted.download = (filepath) => {

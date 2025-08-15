@@ -64,6 +64,78 @@ async function videoToWebp(media) {
     return buff
 }
 
+async function videoToAudio(media) {
+    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("mp3"))
+    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
+
+    fs.writeFileSync(tmpFileIn, media)
+
+    await new Promise((resolve, reject) => {
+        ff(tmpFileIn)
+            .on("error", reject)
+            .on("end", () => resolve(true))
+            .noVideo()
+            .audioCodec("libmp3lame")
+            .save(tmpFileOut)
+    })
+
+    const buff = fs.readFileSync(tmpFileOut)
+    return buff
+}
+
+async function webpToImage(media) {
+    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("png"))
+    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+
+    fs.writeFileSync(tmpFileIn, media)
+
+    try {
+        await new Promise((resolve, reject) => {
+            ff(tmpFileIn)
+                .on("error", reject)
+                .on("end", () => resolve(true))
+                .save(tmpFileOut)
+        })
+    } catch {
+        await new Promise((resolve, reject) => {
+            ff(tmpFileIn)
+                .on("error", reject)
+                .on("end", () => resolve(true))
+                .frames(1)
+                .save(tmpFileOut)
+        })
+    } finally {
+        const buff = fs.readFileSync(tmpFileOut)
+        return buff
+    }
+}
+
+async function webpToVideo(media) {
+    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
+    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+
+    fs.writeFileSync(tmpFileIn, media)
+
+    await new Promise((resolve, reject) => {
+        ff(tmpFileIn)
+            .on("error", reject)
+            .on("end", () => resolve(true))
+            .outputOptions([
+                "-movflags",
+                "faststart",
+                "-pix_fmt",
+                "yuv420p",
+                "-vf",
+                "scale=trunc(iw/2)*2:trunc(ih/2)*2:flags=lanczos,fps=15"
+            ])
+            .toFormat("mp4")
+            .save(tmpFileOut)
+    })
+
+    const buff = fs.readFileSync(tmpFileOut)
+    return buff
+}
+
 async function writeExif(media) {
     const _media = /webp/.test(media.mimetype) ? media.data : /image/.test(media.mimetype) ? await imageToWebp(media.data) : /video/.test(media.mimetype) ? await videoToWebp(media.data) : ""
     const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
@@ -112,4 +184,4 @@ async function uploadFile(media) {
     return data.data.file
 }
 
-export { imageToWebp, videoToWebp, writeExif, uploadFile }
+export { imageToWebp, videoToWebp, videoToAudio, webpToImage, webpToVideo, writeExif, uploadFile }

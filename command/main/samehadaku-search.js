@@ -6,10 +6,10 @@ export default {
     tags: "main",
     
     run: async(m, { conn, text }) => {
-        if (!text) return m.reply("What anime are you looking for?")
+        if (!text) return m.reply("Anime apa yang ingin kamu cari?")
 
         const result = await scrape.scrapeAnimeSearch(text)
-        const results = await scrape.getAnimeDataFromCacheOrScrape()
+        const results = await scrape.scrapeAnimeData()
 
         if (result.length === 0) return m.reply("Anime tidak ditemukan")
 

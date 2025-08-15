@@ -1,9 +1,9 @@
-import { uploadFile } from "../../system/lib/sticker.js"
+import { uploadFile } from "../../system/lib/convert.js"
 
 export default {
     command: ["qc", "sqc", "fakechat"],
     name: "quick-chat",
-    tags: "sticker",
+    tags: "convert",
 
     run: async(m, { conn }) => {
         let quoted = m.isQuoted ? m.quoted : m

@@ -6,9 +6,11 @@ export default {
     owner: true,
 
     run: async(m, { conn }) => {
-        if (!m.isMedia || m.mime !== "image/jpeg") return m.reply("Where are the photos?")
-
         const quoted = m.isQuoted ? m.quoted : m
+
+        if (!quoted.isMedia) return m.reply("Kirim atau reply foto dengan command ." + m.command)
+        if (quoted.mime !== "image/jpeg") return m.reply("Mimetype tidak mendukung : " + quoted.mime)
+
         const media = await quoted.download()
 
         conn.updateProfilePicture(conn.user.jid, media)
