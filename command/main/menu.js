@@ -30,6 +30,7 @@ export default {
 
         let tags = {
             convert: "*Converter*",
+            download: "*Download*",
             main: "*Main*",
             owner: "*Owner*"
         }
