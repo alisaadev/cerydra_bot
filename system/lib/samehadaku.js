@@ -10,25 +10,6 @@ const cache_duration_ms = 60 * 60 * 1000
 await db.read()
 await db.write()
 
-async function fetchDataFromJina(url) {
-    try {
-        const config = {
-            headers: {
-                "Authorization": "Bearer jina_4fd0ab04bdad480d9c0a62ddaa4c61c5ZiLJb_HIVkwOPMGXOqjB_lFT8Fwb",
-                "X-Return-Format": "html"
-            }
-        }
-
-        const baseUrl = "https://r.jina.ai"
-        const requestUrl = `${baseUrl}/${encodeURIComponent(url)}`
-        const response = await func.axios.get(requestUrl, config)
-
-        return response.data
-    } catch (error) {
-        func.logger.error("❌ Terjadi kesalahan saat mengambil data dari Jina AI:")
-    }
-}
-
 async function scrapeAnimeHome() {
     const data = await func.axios.get(same, { "User Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36" })
     const $ = func.cheerio.load(data.data)
@@ -293,4 +274,4 @@ async function scrapeAnimeData(url) {
     }
 }
 
-export { fetchDataFromJina, scrapeAnimeSearch, scrapeAnimeInfo, scrapeAnimeDownload, scrapeAnimeData }
+export { scrapeAnimeSearch, scrapeAnimeInfo, scrapeAnimeDownload, scrapeAnimeData }

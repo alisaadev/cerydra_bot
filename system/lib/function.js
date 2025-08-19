@@ -6,6 +6,7 @@ import { format } from "util"
 import term from "terminal-kit"
 import mimes from "mime-types"
 import * as cheerio from "cheerio"
+import formData from "form-data"
 import { exec } from "child_process"
 import moment from "moment-timezone"
 import { fileTypeFromBuffer } from "file-type"
@@ -14,6 +15,7 @@ export default new(class Function {
     constructor() {
         this.axios = axios
         this.cheerio = cheerio
+        this.form = formData
         this.fs = fs
         this.path = path
         this.logger = this.logging()
@@ -57,6 +59,16 @@ export default new(class Function {
             return await data?.data
         } catch (e) {
             throw e
+        }
+    }
+
+    async apiGet(path = "/", params = {}) {
+        const query = Object.entries(params).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&")
+        const response = await this.fetchJson(`${apikey}${path}?${query}`)
+
+        return {
+            status: response.status,
+            data: response.data
         }
     }
 

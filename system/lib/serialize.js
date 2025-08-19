@@ -1,7 +1,6 @@
 import Function from "./function.js"
 import { writeExif } from "./convert.js"
 
-import fs from "fs"
 import baileys from "baileys"
 import { parsePhoneNumber } from "libphonenumber-js"
 
@@ -85,8 +84,8 @@ export function Client({ conn, store }) {
                 if (filename) {
                     let file = func.path.join(process.cwd(), "storage/tmp", filename)
 
-                    fs.writeFileSync(file, buffer)
-                    return filename
+                    func.fs.writeFileSync(file, buffer)
+                    return file
                 } else {
                     return buffer
                 }
@@ -117,11 +116,11 @@ export function Client({ conn, store }) {
                 } else if (options.asSticker || /webp/.test(mime)) {
                     let pathFile = await writeExif({ mimetype, data: buffer }, { ...options })
                     data = {
-                        sticker: fs.readFileSync(pathFile),
+                        sticker: func.fs.readFileSync(pathFile),
                         mimetype: "image/webp",
                         ...options
                     }
-                    fs.existsSync(pathFile) ? await fs.promises.unlink(pathFile) : ""
+                    func.fs.existsSync(pathFile) ? await func.fs.promises.unlink(pathFile) : ""
                 } else if (/image/.test(mime)) {
                     data = {
                         image: buffer,
@@ -256,7 +255,7 @@ export async function Serialize(conn, msg) {
             let chatId = options?.from ? options.from : m.chat
             let quoted = options?.quoted ? options.quoted : m
 
-            if (Buffer.isBuffer(text) || /^data:.?\/.*?base64,/i.test(text) || /^https?:\/\//.test(text) || fs.existsSync(text)) {
+            if (Buffer.isBuffer(text) || /^data:.?\/.*?base64,/i.test(text) || /^https?:\/\//.test(text) || func.fs.existsSync(text)) {
                 let data = await Function.getFile(text)
 
                 if (!options.mimetype && (/utf-8|json/i.test(data.mime) || data.ext == ".bin" || !data.ext)) {

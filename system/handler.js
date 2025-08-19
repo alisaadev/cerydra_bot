@@ -1,9 +1,8 @@
-import chalk from "chalk"
 import { promisify } from "util"
 import { fileURLToPath } from "url"
 import { createRequire } from "module"
 import cp, { exec as _exec } from "child_process"
-
+    
 export async function handler(conn, m, chatUpdate) {
     if (!m) return
 
@@ -55,7 +54,7 @@ export async function handler(conn, m, chatUpdate) {
                     await plugin.all.call(conn, m, { chatUpdate })
                 } catch (e) {
                     func.logger.error(e)
-                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n${func.format(e)}` })
+                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.text + "\n" + func.format(e) })
                 }
             }
 
@@ -107,14 +106,14 @@ export async function handler(conn, m, chatUpdate) {
                     await plugin.run(m, extra)
                 } catch (e) {
                     func.logger.error(e)
-                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n${func.format(e)}` })
+                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.text + "\n" + func.format(e) })
                 } finally {
                     if (typeof plugin.after === "function") {
                         try {
                             await plugin.after.call(conn, m, extra)
                         } catch (e) {
                             func.logger.error(e)
-                            conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: `👋🏻 Hello developer, ada yang error nih!\n\nCmd: ${m.text}\n${func.format(e)}` })
+                            conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.text + "\n" + func.format(e) })
                         }
                     }
                 }

@@ -1,15 +1,12 @@
-import fs from "fs"
-import path from "path"
 import ff from "fluent-ffmpeg"
-import FormData from "form-data"
 import webp from "node-webpmux"
 import { fileTypeFromBuffer } from "file-type"
 
 async function imageToWebp(media) {
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("jpg"))
+    const tmpFileOut = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+    const tmpFileIn = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("jpg"))
 
-    fs.writeFileSync(tmpFileIn, media)
+    func.fs.writeFileSync(tmpFileIn, media)
 
     await new Promise((resolve, reject) => {
         ff(tmpFileIn)
@@ -25,15 +22,15 @@ async function imageToWebp(media) {
             .save(tmpFileOut)
     })
 
-    const buff = fs.readFileSync(tmpFileOut)
+    const buff = func.fs.readFileSync(tmpFileOut)
     return buff
 }
 
 async function videoToWebp(media) {
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
+    const tmpFileOut = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+    const tmpFileIn = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
 
-    fs.writeFileSync(tmpFileIn, media)
+    func.fs.writeFileSync(tmpFileIn, media)
 
     await new Promise((resolve, reject) => {
         ff(tmpFileIn)
@@ -60,15 +57,15 @@ async function videoToWebp(media) {
             .save(tmpFileOut)
     })
 
-    const buff = fs.readFileSync(tmpFileOut)
+    const buff = func.fs.readFileSync(tmpFileOut)
     return buff
 }
 
 async function videoToAudio(media) {
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("mp3"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
+    const tmpFileOut = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("mp3"))
+    const tmpFileIn = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
 
-    fs.writeFileSync(tmpFileIn, media)
+    func.fs.writeFileSync(tmpFileIn, media)
 
     await new Promise((resolve, reject) => {
         ff(tmpFileIn)
@@ -79,69 +76,16 @@ async function videoToAudio(media) {
             .save(tmpFileOut)
     })
 
-    const buff = fs.readFileSync(tmpFileOut)
-    return buff
-}
-
-async function webpToImage(media) {
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("png"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
-
-    fs.writeFileSync(tmpFileIn, media)
-
-    try {
-        await new Promise((resolve, reject) => {
-            ff(tmpFileIn)
-                .on("error", reject)
-                .on("end", () => resolve(true))
-                .save(tmpFileOut)
-        })
-    } catch {
-        await new Promise((resolve, reject) => {
-            ff(tmpFileIn)
-                .on("error", reject)
-                .on("end", () => resolve(true))
-                .frames(1)
-                .save(tmpFileOut)
-        })
-    } finally {
-        const buff = fs.readFileSync(tmpFileOut)
-        return buff
-    }
-}
-
-async function webpToVideo(media) {
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
-
-    fs.writeFileSync(tmpFileIn, media)
-
-    await new Promise((resolve, reject) => {
-        ff(tmpFileIn)
-            .on("error", reject)
-            .on("end", () => resolve(true))
-            .outputOptions([
-                "-movflags",
-                "faststart",
-                "-pix_fmt",
-                "yuv420p",
-                "-vf",
-                "scale=trunc(iw/2)*2:trunc(ih/2)*2:flags=lanczos,fps=15"
-            ])
-            .toFormat("mp4")
-            .save(tmpFileOut)
-    })
-
-    const buff = fs.readFileSync(tmpFileOut)
+    const buff = func.fs.readFileSync(tmpFileOut)
     return buff
 }
 
 async function writeExif(media) {
     const _media = /webp/.test(media.mimetype) ? media.data : /image/.test(media.mimetype) ? await imageToWebp(media.data) : /video/.test(media.mimetype) ? await videoToWebp(media.data) : ""
-    const tmpFileOut = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
-    const tmpFileIn = path.join(process.cwd(), "storage/tmp", await func.getRandom("webp", "15"))
+    const tmpFileOut = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+    const tmpFileIn = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("webp", "15"))
 
-    fs.writeFileSync(tmpFileIn, _media)
+    func.fs.writeFileSync(tmpFileIn, _media)
 
     const img = new webp.Image()
     const json = {
@@ -167,7 +111,7 @@ async function writeExif(media) {
 async function uploadFile(media) {
     const mime = await fileTypeFromBuffer(media)
     const name = "crydr-" + func.getRandom(mime.ext, "5")
-    const form = new FormData()
+    const form = new func.form()
 
     form.append("file", media, { filename: name, contentType: mime.mime })
     form.append("isPermanent", "false")
@@ -184,4 +128,4 @@ async function uploadFile(media) {
     return data.data.file
 }
 
-export { imageToWebp, videoToWebp, videoToAudio, webpToImage, webpToVideo, writeExif, uploadFile }
+export { imageToWebp, videoToWebp, videoToAudio, writeExif, uploadFile }

@@ -19,8 +19,8 @@ Edit nomor owner & nama bot di [`config.js`](https://github.com/alisaadev/cerydr
 ## Untuk user termux/ubuntu/ssh
 
 ```bash
-apt update && apt upgrade -y
-apt install nodejs imagemagick ffmpeg -y
+pkg update && pkg upgrade -y
+pkg install nodejs imagemagick ffmpeg -y
 
 git clone https://github.com/alisaadev/cerydra_bot
 cd cerydra_bot

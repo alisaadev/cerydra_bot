@@ -33,6 +33,7 @@ global.mess = {
 }
 
 //—————「 Don"t change it 」—————//
+global.apikey = "https://api.siputzx.my.id"
 global.same = "https://v1.samehadaku.how/"
 
 let file = fileURLToPath(import.meta.url)
