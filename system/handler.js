@@ -54,7 +54,7 @@ export async function handler(conn, m, chatUpdate) {
                     await plugin.all.call(conn, m, { chatUpdate })
                 } catch (e) {
                     func.logger.error(e)
-                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.text + "\n" + func.format(e) })
+                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.command + "\n" + func.format(e) })
                 }
             }
 
@@ -106,14 +106,14 @@ export async function handler(conn, m, chatUpdate) {
                     await plugin.run(m, extra)
                 } catch (e) {
                     func.logger.error(e)
-                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.text + "\n" + func.format(e) })
+                    conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.command + "\n" + func.format(e) })
                 } finally {
                     if (typeof plugin.after === "function") {
                         try {
                             await plugin.after.call(conn, m, extra)
                         } catch (e) {
                             func.logger.error(e)
-                            conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.text + "\n" + func.format(e) })
+                            conn.sendMessage(owner[0] + "@s.whatsapp.net", { text: "Cmd: " + m.command + "\n" + func.format(e) })
                         }
                     }
                 }
@@ -127,7 +127,6 @@ export async function handler(conn, m, chatUpdate) {
 export async function participantsUpdate({ id, participants, action }) {
     if (!settings.public) return
 
-    let ppuser
     let metadata = await conn.groupMetadata(id)
 
     switch (action) {

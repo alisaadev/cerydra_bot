@@ -1,3 +1,5 @@
+import { exec } from "child_process"
+
 export default {
     command: ["toimg", "tovid", "tomp4", "tovideo"],
     name: "to-image",
@@ -6,18 +8,22 @@ export default {
     run: async(m, { conn }) => {
         if (!m.quoted?.isMedia) return m.reply("Reply stiker dengan command ." + m.command)
         if (m.quoted.mime !== "image/webp") return m.reply("Mimetype tidak mendukung : " + m.quoted.mime)
-        
-        m.reply("Sedang maintenance...")
-        /*if (m.quoted.isAnimated) {
-            let download = await m.quoted.download()
-            let media = await webpToVideo(download)
 
-            m.reply(media)
+        if (m.quoted.isAnimated) {
+            /*let download = await m.quoted.download()
+            let media = await webpToVideo(download)*/
+
+            m.reply("Sedang maintenance...")
         } else {
-            let download = await m.quoted.download()
-            let media = await webpToImage(download)
+            let webp = await m.quoted.download(func.getRandom("webp"))
+            let png = func.path.join(process.cwd(), "storage/tmp", func.getRandom("png"))
 
-            m.reply(media)
-        }*/
+            exec(`ffmpeg -i ${webp} ${png}`, async(err) => {
+                if (err) return m.reply(func.format(err))
+
+                let buffer = func.fs.readFileSync(png)
+                m.reply(buffer)
+            })
+        }
     }
 }

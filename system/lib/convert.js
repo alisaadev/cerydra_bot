@@ -117,7 +117,7 @@ async function uploadFile(media) {
     form.append("isPermanent", "false")
     form.append("expirationHours", "1")
 
-    const data = await func.axios.post("https://cdn.akane.web.id/upload", form, {
+    const data = await func.axios.post("https://cdn.akane.web.id/web-upload", form, {
         headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
             "Authorization": "Bearer da1aba4f39a1a3abfcd890bc0e969078773b4f867614209639860a619cf53b71",
@@ -128,4 +128,62 @@ async function uploadFile(media) {
     return data.data.file
 }
 
-export { imageToWebp, videoToWebp, videoToAudio, writeExif, uploadFile }
+async function webpToFile(media) {
+    const form = new func.form()
+    const isUrl = typeof media === "string" && /https?:\/\//.test(media)
+
+    form.append("new-image-url", isUrl ? media : "")
+    form.append("new-image", isUrl ? "" : media, "image.webp")
+    form.append("upload", "Upload!")
+
+    const res = await func.axios({
+        method: "post",
+        url: "https://s7.ezgif.com/webp-to-mp4",
+        data: form,
+        headers: {
+            "Content-Type": `multipart/form-data; boundary=${form._boundary}`
+        }
+    })
+
+    const bodyForm = new func.form()
+    const $ = func.cheerio.load(res.data)
+    const file = $("input[name='file']").val()
+    const convert = $("input[name='convert']").val()
+
+    bodyForm.append("file", file)
+    bodyForm.append("convert", convert)
+
+    const ress = await func.axios({
+        method: "post",
+        url: "https://ezgif.com/webp-to-mp4/" + file,
+        data: bodyForm,
+        headers: {
+            "Content-Type": `multipart/form-data; boundary=${bodyForm._boundary}`
+        }
+    })
+
+    const $$ = func.cheerio.load(ress.data)
+    const result = "https:" + $$("div#output > p.outfile > video > source").attr("src")
+
+    return result
+}
+
+async function webpToVideo(media) {
+    const tmpFileOut = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("mp4"))
+    const tmpFileIn = func.path.join(process.cwd(), "storage/tmp", await func.getRandom("webp"))
+
+    func.fs.writeFileSync(tmpFileIn, media)
+
+    await new Promise((resolve, reject) => {
+        ff(tmpFileIn)
+            .on("error", reject)
+            .on("end", () => resolve(true))
+            .toFormat("mp4")
+            .save(tmpFileOut)
+    })
+
+    const buff = func.fs.readFileSync(tmpFileOut)
+    return buff
+}
+
+export { imageToWebp, videoToWebp, videoToAudio, webpToVideo, writeExif, uploadFile }
